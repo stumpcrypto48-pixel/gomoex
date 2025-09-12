@@ -1,0 +1,61 @@
+version: "3.8"
+
+networks:
+  kafka_network:
+    driver: bridge
+
+services:
+  kafka:
+    image: bitnami/kafka:3.9.0
+    container_name: kafka
+    hostname: kafka
+    networks:
+      - kafka_network
+    # Прокидываем host:9092 -> container:9094 (HOST listener)
+    ports:
+      - "9092:9094"
+    environment:
+      # KRaft
+      KAFKA_ENABLE_KRAFT: "yes"
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      # Listener'ы в контейнере:
+      #  - DOCKER слушает на :9092 (доступ для других контейнеров)
+      #  - HOST слушает на :9094 (доступ для хоста через проброшенный порт 9092)
+      #  - CONTROLLER слушает на :9093 (внутренний контроллер)
+      KAFKA_CFG_LISTENERS: "DOCKER://:9092,HOST://:9094,CONTROLLER://:9093"
+
+      # Какие адреса мы "advertise" для каждого listener name — ИМЕНА ДОЛЖНЫ БЫТЬ РАЗНЫМИ
+      KAFKA_CFG_ADVERTISED_LISTENERS: "DOCKER://kafka:9092,HOST://localhost:9092"
+
+      # Какому имени сопоставлен протокол
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "DOCKER:PLAINTEXT,HOST:PLAINTEXT,CONTROLLER:PLAINTEXT"
+
+      # Для меж-брокерного трафика используем DOCKER (т.е. kafka:9092)
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: "DOCKER"
+
+      # controller quorum (используем hostname kafka и порт controller)
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+    volumes:
+      - kafka_data:/bitnami/kafka
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    networks:
+      - kafka_network
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "local"
+      # UI подключается внутри docker-сети по DOCKER listener
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+    links:
+      - kafka
+
+volumes:
+  kafka_data:
