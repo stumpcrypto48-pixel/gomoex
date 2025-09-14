@@ -57,6 +57,7 @@ func (facade *secDataFacade) GetData(c *gin.Context) {
 	err, moexResult := facade.service.GetSecsRequest(&ctx, inputJson.Query)
 	if err != nil {
 		errors.WriteAPIError(c, err)
+		return
 	}
 	// and save it into database (async)
 	errSaveChan := make(chan error)
