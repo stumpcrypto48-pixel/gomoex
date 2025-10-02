@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -49,6 +50,7 @@ func NewApp(dsn *string) (*App, error) {
 func (a *App) registerRoutes() {
 	v1 := a.Router.Group("/v1/moex")
 	router.MoexRouter(a.DB, v1)
+	pprof.Register(a.Router, "dev/pprof")
 	a.Router.Run()
 }
 

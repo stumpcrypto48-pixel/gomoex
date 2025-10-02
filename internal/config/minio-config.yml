@@ -1,0 +1,9 @@
+server:
+  url: "localhost"
+  port: "9000"
+
+cred:
+  minio-user: "mrpinky"
+  minio-pass: "minioadmin"
+  access-key: "cV3XrQdUP2Wc1UyZX2KT"
+  secret-key: "gccdSqGInDqw7XgzOQlJUkh0JQfFkXfBpzSyw3VN"
