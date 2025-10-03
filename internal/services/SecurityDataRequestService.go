@@ -15,7 +15,7 @@ import (
 
 type SecsService interface {
 	GetSecsRequest(c *context.Context, query string) (error, []model.SecModel)
-	GetSecsDbQuery(query string) (*gorm.DB, []model.SecModel)
+	GetSecsDbQuery(query string) (*gorm.DB, []model.Row)
 	SaveData([]model.SecModel) *gorm.DB
 }
 
@@ -80,7 +80,7 @@ func (service *secsService) GetSecsRequest(c *context.Context, query string) (er
 	}
 }
 
-func (service *secsService) GetSecsDbQuery(query string) (*gorm.DB, []model.SecModel) {
+func (service *secsService) GetSecsDbQuery(query string) (*gorm.DB, []model.Row) {
 	return service.secRepo.GetData(query)
 }
 

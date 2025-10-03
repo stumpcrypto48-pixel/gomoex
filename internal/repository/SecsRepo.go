@@ -7,7 +7,7 @@ import (
 )
 
 type SecsRepo interface {
-	GetData(query string) (*gorm.DB, []model.SecModel)
+	GetData(query string) (*gorm.DB, []model.Row)
 	SaveData(resultToSave []model.SecModel) *gorm.DB
 }
 
@@ -21,13 +21,17 @@ func NewSecRepo(db *gorm.DB) *secRepo {
 	}
 }
 
-func (repo *secRepo) GetData(query string) (*gorm.DB, []model.SecModel) {
-	var result []model.SecModel
-	secModelResult := repo.db.Where("name like \"%\" + ? + \"%\"", query).Take(&result)
+func (repo *secRepo) GetData(query string) (*gorm.DB, []model.Row) {
+	var result []model.Row
+	secModelResult := repo.db.Where("name like ? ", query).Take(&result)
 	return secModelResult, result
 }
 
 func (repo *secRepo) SaveData(resultToSave []model.SecModel) *gorm.DB {
-	saveResult := repo.db.Create(resultToSave)
+	rows := make([]model.Row, len(resultToSave))
+	for _, secModel := range resultToSave {
+		rows = append(rows, secModel.Data.Rows.Items...)
+	}
+	saveResult := repo.db.Create(rows)
 	return saveResult
 }

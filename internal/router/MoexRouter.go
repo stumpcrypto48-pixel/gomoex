@@ -16,7 +16,5 @@ func MoexRouter(db *gorm.DB, moexRouter *gin.RouterGroup) {
 		secService   services.SecsService    = services.NewSecService(secModelRepo)
 		secFacade    facade.GetSecDataFacade = facade.NewSecDataFacade(secService)
 	)
-
 	moexRouter.GET("/getSecData", secFacade.GetData)
-
 }

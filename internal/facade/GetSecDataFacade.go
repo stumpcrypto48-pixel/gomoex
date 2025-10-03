@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type SecQueryParams struct {
@@ -42,14 +43,14 @@ func (facade *secDataFacade) GetData(c *gin.Context) {
 	// Check DB for DATA
 
 	db, result := facade.service.GetSecsDbQuery(inputJson.Query)
-	if db.Error != nil {
+	if db.Error != nil && db.Error != gorm.ErrRecordNotFound {
 		log.Printf("Error while try to get data from database %v", db.Error)
 		errors.WriteAPIError(c, db.Error)
 		return
 	}
 
 	// If data exists get data from database
-	if len(result) != 0 {
+	if db.Error != gorm.ErrRecordNotFound {
 		c.JSON(http.StatusOK, gin.H{"response": result})
 		return
 	}

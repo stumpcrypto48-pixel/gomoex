@@ -4,8 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"log"
-
-	"gorm.io/gorm"
 )
 
 type SecModel struct {
@@ -22,7 +20,6 @@ type Rows struct {
 }
 
 type Row struct {
-	gorm.Model
 	SecID              string `xml:"secid,attr" gorm:"column:sec_id"`
 	ShortName          string `xml:"shortname,attr" gorm:"column:short_name"`
 	RegNumber          string `xml:"regnumber,attr" gorm:"column:reg_number"`
