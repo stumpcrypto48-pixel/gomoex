@@ -9,6 +9,6 @@ type MinioApp struct {
 }
 
 func (app *MinioApp) Start() {
-	app.services.GetConfig()
+	app.services.Connect()
 
 }

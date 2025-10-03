@@ -37,6 +37,10 @@ func NewMinioClient(c context.Context, cfg config.MinioConfig, bucketName string
 	}, nil
 }
 
+func (client MinioClient) Read(c context.Context, objectName string, bucketName string) {
+
+}
+
 func (client MinioClient) Create(c context.Context, objectName string) {
 
 }
