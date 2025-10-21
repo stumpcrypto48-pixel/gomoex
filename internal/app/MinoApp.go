@@ -8,7 +8,7 @@ type MinioApp struct {
 	services services.MinioServicer
 }
 
-func (app *MinioApp) Start() {
-	app.services.Connect()
+// func (app *MinioApp) Start() {
+// 	app.services.Connect()
 
-}
+// }

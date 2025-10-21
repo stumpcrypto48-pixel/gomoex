@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+
+service Greeter {
+    rpc HelloWorld() returns HelloReply {}
+}
+
+message HelloStruct {
+    string name = 1
+
+}
