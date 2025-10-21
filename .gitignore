@@ -1,2 +1,12 @@
 .env
 internal/config/api-stock.yml
+internal/config/ca-cert.pem
+gomoex/internal/confi/dcert.crt
+gomoex/internal/config/DigiCert Global G3 TLS ECC SHA384 2020 CA1.crt
+gomoex/internal/config/DigiCert Global Root G3.crt
+gomoex/internal/config/global.pem
+cpu
+cpu.out
+cpu.prof
+handlers.test.exe
+mem.prof 

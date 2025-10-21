@@ -56,15 +56,28 @@ func main() {
 			responseChan <- resp
 		}()
 
-		for respData := range responseChan {
-			var encodedData model.TradeModel
-			err := xml.Unmarshal(respData, &encodedData)
-			if err != nil {
-				response.Write([]byte(fmt.Sprintf("Error while try to unmarshal data :: %v", err)))
-			}
-			log.Printf("All data response :: %+v \n", encodedData.Data.Rows.Items)
+		// resp := Worker(responseChan, CalcMidPrice, 4)
+		// var totalResponse []byte
 
-			midPrice := CalcMidPrice(encodedData.Data.Rows.Items)
+		// outCh := fanIn(resp)
+		// for ch := range outCh {
+		// 	jsonResponse, err := json.Marshal(ch)
+		// 	if err != nil {
+		// 		response.Write([]byte(fmt.Sprintf("Error while marshall data into json :: %v", err)))
+		// 		return
+		// 	}
+		// 	totalResponse = jsonResponse
+		// }
+		// response.Write(totalResponse)
+		for respData := range responseChan {
+			// var encodedData model.TradeModel
+			// err := xml.Unmarshal(respData, &encodedData)
+			// if err != nil {
+			// 	response.Write([]byte(fmt.Sprintf("Error while try to unmarshal data :: %v", err)))
+			// }
+			// log.Printf("All data response :: %+v \n", encodedData.Data.Rows.Items)
+
+			midPrice := CalcMidPrice(respData)
 
 			jsonResponse, err := json.Marshal(midPrice)
 			if err != nil {
@@ -158,7 +171,6 @@ func GetPolyDataTrades(ctx context.Context, ticker string) ([]byte, error) {
 		q.Add("interval", "24")
 
 		req.URL.RawQuery = q.Encode()
-
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Printf("Error while request")
@@ -297,7 +309,7 @@ func ParallelPipeline[T, G, R any](numberOfWorkers int,
 
 	workerResult := worker(params, processing, numberOfWorkers)
 
-	return fanIn(workerResult...)
+	return fanIn(workerResult)
 }
 
 func Pipeline[T, G, R any](generateFunc Generate[T, G], process Proccessing[G, R], inputParamChan <-chan T) <-chan R {
@@ -407,7 +419,7 @@ func fanOut[T any](numberOfOut int, inputChan <-chan T) []<-chan T {
 
 }
 
-func fanIn[T any](inputChans ...<-chan T) <-chan T {
+func fanIn[T any](inputChans []<-chan T) <-chan T {
 	rch := make(chan T)
 	var wg sync.WaitGroup
 	wg.Add(len(inputChans))
@@ -473,7 +485,14 @@ func CalcVariance(mean float64, xs []float64) float64 {
 	return allDist / float64(len(xs)-1)
 }
 
-func CalcMidPrice(rows []model.TradeRow) *TotalResponseTrades {
+func CalcMidPrice(response []byte) TotalResponseTrades {
+	var tradeModel model.TradeModel
+	err := xml.Unmarshal(response, &tradeModel)
+	if err != nil {
+		fmt.Errorf("Err while try to unmarshall response")
+		return TotalResponseTrades{}
+	}
+	rows := tradeModel.Data.Rows.Items
 	rs := make([]ResponseTrades, 0, len(rows))
 	midPrice := make([]float64, 0, len(rows))
 	mean := 0.0
@@ -493,7 +512,7 @@ func CalcMidPrice(rows []model.TradeRow) *TotalResponseTrades {
 		})
 	}
 
-	return &TotalResponseTrades{
+	return TotalResponseTrades{
 		MeanPrice: mean,
 		Variance:  CalcVariance(mean, midPrice),
 		MidPrices: rs,

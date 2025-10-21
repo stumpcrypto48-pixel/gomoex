@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	client "httpfromtcp/rootmod/internal/clients"
 	repositroy "httpfromtcp/rootmod/internal/repository"
 )
@@ -12,6 +11,10 @@ type MinioServicer interface {
 	PushData(context.Context, string) error
 	DeleteData(context.Context, string) error
 }
+
+// type MinioServiceWithoutDB struct {
+// 	minioClient client.MinioClient
+// }
 
 type MinioService[O, T any] struct {
 	dbRepository *repositroy.Repo[O]
@@ -25,17 +28,17 @@ func NewMinioService[O, T any](minioRepo *repositroy.Repo[O], client client.CRDC
 	}
 }
 
-func (service MinioService[O, T]) GetData(ctx context.Context, fileName string) error {
-	// 1 check file name in  db
-	c, cancel := context.WithCancel(ctx)
-	defer cancel()
+// func (service MinioService[O, T]) GetData(ctx context.Context, fileName string) error {
+// 	// 1 check file name in  db
+// 	c, cancel := context.WithCancel(ctx)
+// 	defer cancel()
 
-	_, data := service.dbRepository.GetData(fileName)
-	if len(data) == 0 {
-		return errors.New("No such file")
-	}
+// 	// _, data := service.dbRepository.GetData(fileName)
+// 	// if len(data) == 0 {
+// 	// 	return errors.New("No such file")
+// 	// }
 
-	// if exists get data from minio
+// 	// if exists get data from minio
 
-	service.minioClient.Read(c)
-}
+// 	service.minioClient.Read(c)
+// }
